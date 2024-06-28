@@ -1,0 +1,3 @@
+read_only_controller:
+    type: "ll_control/ReadOnlyController"
+    arm_id: $(arg arm_id)
