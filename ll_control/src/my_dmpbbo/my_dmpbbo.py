@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import division
 
 
@@ -17,6 +19,7 @@ class KulDMP():
         """
         
         self._tau = deepcopy(tau)
+        print(tau)
         self._goal = deepcopy(goal)
         self._init_state = np.array([0, init_pos, init_pos, 1, 0])
 
@@ -32,8 +35,8 @@ class KulDMP():
         self._max_rate, self._inflection_ratio = self._sigmoid_system_for_gating(self._tau, 0.1)
         self._Ks_cached = None
         self._ks = self._get_ks()
-        self._alpha_y = 20.0
-        self._beta_y  = 5.0
+        self._alpha_y = 20.0 #1.0 #20.0
+        self._beta_y  = 5.0 #0.25  #5.0
         self._alpha_g = -15.0
         
         for key, value in kwargs.items():
@@ -119,6 +122,7 @@ class KulDMP():
         if method == 'kuta':
             tr = True
             x = self._state_hist[method][-1]
+            print('kuta_x', x)
             x_updated = self._integrate_step_runge_kutta(x, dt)
         
         if(not tr):

@@ -72,6 +72,8 @@ namespace ll_control {
     }
 
 
+
+    //Services
     srv_get_end_effector_pose =
       root_node_handle.advertiseService("read_only_controller/get_end_effector_pose", &ReadOnlyController::getEndEffectorPose, this);
 

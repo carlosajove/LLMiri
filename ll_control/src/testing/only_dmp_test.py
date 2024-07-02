@@ -4,8 +4,8 @@
 from my_dmpbbo.my_dmpbbo import KulDMP
 import matplotlib.pyplot as plt
 
-tau = 1
-kul_dmp = KulDMP(0.4, 0, 1, tau)
+tau = 10.0
+kul_dmp = KulDMP(0.4, 0.0, 1.0, tau)
 
 t = 0
 dt = 0.001

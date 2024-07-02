@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-
-
-
 import numpy as np
 import rospy
 import threading
 import subprocess
 import utils
 
-
-from dmp_v00 import *
 from std_srvs.srv import Trigger
 from ll_control.srv import *
+from my_dmpbbo.my_dmpbbo import KulDMP
+
 
 def run_DesiredCartesianNode():
     return_code = subprocess.call(['rosrun', 'll_control', 'DesiredCartesianNodePub.py'])
@@ -22,15 +19,11 @@ def clock_callback(msg):
     global current_time
     current_time = msg.data
 
-
-from my_dmpbbo.my_dmpbbo import KulDMP
-
-
 if __name__ == '__main__':     
     rospy.init_node('your_node_name')  # Initialize your ROS node
     
-    rosrun_thread = threading.Thread(target=run_DesiredCartesianNode)
-    rosrun_thread.start()
+    #rosrun_thread = threading.Thread(target=run_DesiredCartesianNode)
+    #rosrun_thread.start()
         
     rospy.wait_for_service('/read_only_controller/get_end_effector_pose')
     rospy.wait_for_service('/ll_ctrl/cartesian_publisher/set_cartesian_desired_pose')
@@ -44,15 +37,21 @@ if __name__ == '__main__':
     
     
     
-    goal = np.array([0.5, 0.33, 0.6])
+    goal = np.array([-0.1, 0.2, 0.6])
     current_pose = get_ef_pose()
     cur_pos, cur_quat = utils.NumpyfromGetPose(current_pose)
 
     
     #this means the start of the trajectory
     init_time = rospy.Time.now().to_sec()
-    dmp_kul = [KulDMP(cur_pos[i], init_time, goal[i], 5) for i in range(3)]
-        
+    #print(cur_pos)
+    #cur_pos = np.array([0.0, 1.0, 0.0])
+    
+    dmp_kul = [KulDMP(cur_pos[i], init_time, goal[i], 5.0) for i in range(3)]
+    #dmp_kul = [KulDMP(0.4, 0, 1, 10) for i in range(3)]
+    #dmp_kul = KulDMP(0.4, 0.0, 1.0, 10.0)
+    
+    
     des_pos = cur_pos
     des_pose = SetPoseRequest()
     utils.SetPosefromNumpy(des_pos, cur_quat, des_pose)
@@ -62,22 +61,30 @@ if __name__ == '__main__':
     rate = rospy.Rate(100)
     
     # Main control loop
-    while not rospy.is_shutdown():
+    j = 0
+    while not rospy.is_shutdown() and j < 10*100:
+        j = j + 1
         current_time = rospy.Time.now().to_sec() - init_time
         t = current_time  # Get current time in seconds
         dt = t - last_time
-        
+        dt = 1.0/100.0
+        print('time', dt)
         for i in range(3):
             des_pos[i] = dmp_kul[i].integrate_step(dt, 'kuta')[1]
-             
+        #des_pos = dmp_kul.integrate_step(dt, 'kuta')
+        print('i', j, des_pos)
         
         last_time = t
         
-        print(des_pos)
         utils.SetPosefromNumpy(des_pos, cur_quat, des_pose)
         set_ef_pose(des_pose)
         
         rate.sleep()  # Maintain loop rate
-
-    # Optionally, stop publishing before exiting
+        
     stop_pub_ef_pose()
+    #dmp_kul.plot_state_traj('kuta', False)
+    for dmp in dmp_kul:
+        dmp.plot_state_traj('kuta', False)
+    import matplotlib.pyplot as plt
+    plt.show()
+    # Optionally, stop publishing before exiting
