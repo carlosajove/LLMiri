@@ -226,7 +226,7 @@ class KulDMP():
     """
     """ 
         
-    def plot_state_traj(self, method, show = True):
+    def plot_state_traj(self, method, show = False):
         name_list = ['z', 'y', 'g', 'v', 's' ]
         if method != 'euler' and method != 'kuta':
             assert Exception('method must be euler or kuta')
@@ -238,6 +238,7 @@ class KulDMP():
             y = [state[i] for state in self._state_hist[method]]
             plt.plot(self._time_hist[method], y)
             plt.title(name_list[i] + ' ' + method)
-        
-        if show:
-            plt.show()
+            if show:
+                plt.show(block=False)
+        #if show:
+        #    plt.show()

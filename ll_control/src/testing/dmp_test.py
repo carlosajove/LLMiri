@@ -3,11 +3,11 @@ import numpy as np
 import rospy
 import threading
 import subprocess
-import utils
 
 from std_srvs.srv import Trigger
 from ll_control.srv import *
 from my_dmpbbo.my_dmpbbo import KulDMP
+import utils.utils as utils
 
 
 def run_DesiredCartesianNode():
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     
     
     
-    goal = np.array([-0.1, 0.2, 0.6])
+    goal = np.array([0.2, 0.4, 0.03])
     current_pose = get_ef_pose()
     cur_pos, cur_quat = utils.NumpyfromGetPose(current_pose)
 
@@ -84,7 +84,9 @@ if __name__ == '__main__':
     stop_pub_ef_pose()
     #dmp_kul.plot_state_traj('kuta', False)
     for dmp in dmp_kul:
-        dmp.plot_state_traj('kuta', False)
+        dmp.plot_state_traj('kuta', True)
+    
     import matplotlib.pyplot as plt
-    plt.show()
+    input("Press ENTER to close all plots")    
+    plt.close('all')
     # Optionally, stop publishing before exiting

@@ -21,7 +21,7 @@
 
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
-#include <ll_control/end_effector_state_Node_Handle.h>
+#include <ll_control/read_only_controller_Node.h>
 
 namespace ll_control {
 
@@ -71,11 +71,15 @@ namespace ll_control {
       return false;
     }
 
-
+    //Subscibers
+    model_states_sub_ = root_node_handle.subscribe("/gazebo/model_states", 1, &ReadOnlyController::modelStatesCallback, this);
 
     //Services
-    srv_get_end_effector_pose =
+    get_end_effector_pose_srv_ =
       root_node_handle.advertiseService("read_only_controller/get_end_effector_pose", &ReadOnlyController::getEndEffectorPose, this);
+
+    get_object_model_srv_ =
+      root_node_handle.advertiseService("read_only_controller/get_object_state", &ReadOnlyController::getObjectState, this);
 
     return true;
   }
@@ -108,6 +112,28 @@ namespace ll_control {
 
     return true;
   }
+
+
+  //May change this, does't seem fast
+  void ReadOnlyController::modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr& msg) {
+    // Clear the map before updating with new data
+    model_states_ = *msg;
+  }
+
+  bool ReadOnlyController::getObjectState(ll_control::GetObjectPose::Request& req, ll_control::GetObjectPose::Response& res) {
+    // Search for the object name in the stored model states
+    auto it = std::find(model_states_.name.begin(), model_states_.name.end(), req.object_name);
+    if (it != model_states_.name.end()) {
+      size_t index = std::distance(model_states_.name.begin(), it);
+      res.pose = model_states_.pose[index];
+      res.twist = model_states_.twist[index];
+      res.success = true;
+    }
+    else res.success = false;
+
+    return true;
+  }
+
 
 
 } // namespace franka_example_controllers
