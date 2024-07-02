@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   franka_hw
   hardware_interface
   pluginlib
+  gazebo_msgs
 )
 
 find_package(Eigen3 REQUIRED)
@@ -29,12 +30,14 @@ add_service_files(
   FILES
   SetPose.srv
   GetPose.srv
+  GetObjectPose.srv
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  gazebo_msgs
 )
 
 catkin_package(
@@ -56,7 +59,7 @@ catkin_package(
 
 
 add_library(ll_control
-  src/end_effector_state_NodeHandle.cpp
+  src/read_only_controller_Node.cpp
 )
 
 
@@ -102,10 +105,22 @@ install(FILES ll_control_plugin.xml
 
 
 
-catkin_install_python(PROGRAMS src/DesiredCartesianNodePub.py
+catkin_install_python(PROGRAMS 
+                      src/DesiredCartesianNodePub.py
+                      src/testing/dmp_test.py 
+                      src/my_dmpbbo/my_dmpbbo.py 
+                      src/utils/utils.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
+
+install(DIRECTORY src/testing/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/testing
+)
+
+install(DIRECTORY src/my_dmpbbo/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/my_dmpbbo
+)
 
 
 

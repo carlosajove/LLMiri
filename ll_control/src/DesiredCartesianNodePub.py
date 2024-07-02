@@ -13,7 +13,7 @@ import threading
 
 from copy import copy, deepcopy
 
-from utils import *
+from utils.utils import *
 
 class CartesianPublisherNode():
     def __init__(self):
