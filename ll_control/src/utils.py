@@ -7,9 +7,6 @@ def NumpyfromGetPose(getpose):
     return pos, ori
 
 def SetPosefromNumpy(pos, ori, setpose): #weight last quaternion
-    print(setpose)
-    print(setpose.position_x)
-    print(pos[0])
     setpose.position_x = pos[0]
     setpose.position_y = pos[1]
     setpose.position_z = pos[2]

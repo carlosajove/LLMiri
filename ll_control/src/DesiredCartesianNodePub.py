@@ -24,11 +24,11 @@ class CartesianPublisherNode():
         self._stop_publishing_srv = rospy.Service('/ll_ctrl/cartesian_publisher/stop_publishing', Trigger, self.handle_stop_publishing)
         
         self._pub = rospy.Publisher('/cartesian_impedance_example_controller/equilibrium_pose', PoseStamped, queue_size=10)
-        self._rate = rospy.Rate(100)
+        self._rate = rospy.Rate(1000)
         
         self._cartesian_pose = Pose()
         PosefromNumpy(np.zeros(3), np.zeros(4), self._cartesian_pose)
-        
+        print(self._cartesian_pose)
         
         self._initialised_pose = False
         self._is_publishing = False
@@ -36,6 +36,9 @@ class CartesianPublisherNode():
         rospy.spin()
 
     def handle_set_pos_command(self, req):
+        del self._cartesian_pose 
+        self._cartesian_pose = Pose()
+
         self._cartesian_pose.position.x = req.position_x
         self._cartesian_pose.position.y = req.position_y
         self._cartesian_pose.position.z = req.position_z
@@ -85,15 +88,16 @@ class CartesianPublisherNode():
         while not rospy.is_shutdown() and self._is_publishing:
             # Create PoseStamped message
             pose_stamped = PoseStamped()
-            print(self._cartesian_pose.position.x, self._cartesian_pose.position.y, self._cartesian_pose.position.z)
+            #print(self._cartesian_pose.position.x, self._cartesian_pose.position.y, self._cartesian_pose.position.z)
             # Header
             pose_stamped.header = Header()
             pose_stamped.header.stamp = rospy.Time.now()
             pose_stamped.header.frame_id = "End-effector"
 
             # Pose
+            print(self._cartesian_pose)
             pose_stamped.pose = deepcopy(self._cartesian_pose)
-
+            print(pose_stamped)
             # Publish the message
             self._pub.publish(pose_stamped)
             self._rate.sleep()
