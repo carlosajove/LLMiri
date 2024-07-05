@@ -37,7 +37,7 @@ if __name__ == '__main__':
     
     
     
-    goal = np.array([0.2, 0.4, 0.03])
+    goal = np.array([0.2, 0.4, 0.3])
     current_pose = get_ef_pose()
     cur_pos, cur_quat = utils.NumpyfromGetPose(current_pose)
 
