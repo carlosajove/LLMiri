@@ -17,10 +17,10 @@ def on_open(ws):
 
     # Function to publish messages
     def run(*args):
-        for i in range(10):
+        for i in range(100):
             message = {
                 "op": "publish",
-                "topic": "/chatter",
+                "topic": "/transformer/LLM_interface/output",
                 "msg": {"data": f"Hello ROS {i}"}
             }
             print("Sending message:", message)
