@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
 import rospy
-import threading
 import subprocess
 
 from std_srvs.srv import Trigger
@@ -19,7 +18,8 @@ def clock_callback(msg):
     global current_time
     current_time = msg.data
 
-if __name__ == '__main__':     
+if __name__ == '__main__': 
+    print('hey')    
     rospy.init_node('your_node_name')  # Initialize your ROS node
     
     #rosrun_thread = threading.Thread(target=run_DesiredCartesianNode)
@@ -37,17 +37,21 @@ if __name__ == '__main__':
     
     
     
-    goal = np.array([0.2, 0.4, 0.3])
-    current_pose = get_ef_pose()
-    cur_pos, cur_quat = utils.NumpyfromGetPose(current_pose)
+    goal = np.array([0.2, 0.4, 0.05])
+    #goal = np.array([0.4, 0.2, 0.5])
+    goal = np.array([0.5, -0.35, 0.5])
 
+    current_pose = get_ef_pose()
+    
+    cur_pos, cur_quat = utils.NumpyfromGetPose(current_pose)
+    print('current position', cur_pos)
     
     #this means the start of the trajectory
     init_time = rospy.Time.now().to_sec()
     #print(cur_pos)
     #cur_pos = np.array([0.0, 1.0, 0.0])
     
-    dmp_kul = [KulDMP(cur_pos[i], init_time, goal[i], 5.0) for i in range(3)]
+    dmp_kul = [KulDMP(cur_pos[i], init_time, goal[i], 25.0) for i in range(3)]
     #dmp_kul = [KulDMP(0.4, 0, 1, 10) for i in range(3)]
     #dmp_kul = KulDMP(0.4, 0.0, 1.0, 10.0)
     
@@ -62,7 +66,7 @@ if __name__ == '__main__':
     
     # Main control loop
     j = 0
-    while not rospy.is_shutdown() and j < 10*100:
+    while not rospy.is_shutdown() and j < 25*100:
         j = j + 1
         current_time = rospy.Time.now().to_sec() - init_time
         t = current_time  # Get current time in seconds
