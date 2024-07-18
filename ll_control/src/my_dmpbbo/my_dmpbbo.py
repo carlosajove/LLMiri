@@ -242,3 +242,29 @@ class KulDMP():
                 plt.show(block=False)
         #if show:
         #    plt.show()
+        
+        
+class MultiKulDmp():   
+    def __init__(self, init_pos, init_time, goal, tau, **kwargs):
+        """
+            init_pos (np.array): N-d end-effector pos
+            init_time (float): 0?
+            goal (np.array): N-d end-effector goal
+            tau (float): time duration
+        """
+        assert init_pos.ndim == 1
+        assert init_pos.shape == goal.shape
+        
+        self._dim = len(init_pos)
+        self._dmp_list = [KulDMP(init_pos[i], init_time, goal[i], tau) for i in range(self._dim)]
+    
+    
+    
+    def integrate_step(self, dt, method):
+        res = []
+        for dmp in self._dmp_list:
+            res.append(dmp.integrate_step(dt, method)[1])
+        return res
+    
+    def get_dmps(self):
+        return self._dmp_list

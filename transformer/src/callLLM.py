@@ -26,8 +26,8 @@ def callPhiMini(input):
                                         \
                                        Your job is to tell what parameters to use in the controller depending on the context.\
                                        \
-                                       Your answer will consits of the following parts: \
-                                       Explanaition: in this part you must explain in words the choices you make. \
+                                       Your answer will consist of the following parts: \
+                                       Explanation: in this part you must explain in words the choices you make. \
                                        Parameters: In this part you must write explicitly the paramter values that enable you to follow the desired behaviour. \
                                        The answer must be in the following format:  \
                                            - Explanation: ... \
