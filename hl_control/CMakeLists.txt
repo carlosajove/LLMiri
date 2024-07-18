@@ -32,6 +32,6 @@ catkin_package(
 
 
 catkin_install_python(PROGRAMS 
-                      src/LLM_to_cartesian.py
+                      src/LLM_to_controller.py
                       src/launch_nodes.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
