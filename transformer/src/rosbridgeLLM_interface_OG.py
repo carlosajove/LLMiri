@@ -2,7 +2,7 @@ import websocket
 import json
 
 
-from callLLM import callPhiMini
+from callLLM import PhiMini
 
 
 def on_open(ws):
@@ -11,14 +11,14 @@ def on_open(ws):
     advertise_service = {
         "op": "advertise_service",
         "type": "transformer/CallLLM",
-        "service": "transformer/LLM_interface"
+        "service": "transformer/phi-mini/callStiffness"
     }
     ws.send(json.dumps(advertise_service))
     print("Advertising topic:")
 
     advertise_topic =   {
         "op": "advertise",
-        "topic": "/transformer/LLM_interface/output",
+        "topic": "/transformer/phi-mini/outputStiffness",
         "type": "std_msgs/String"
     }
     ws.send(json.dumps(advertise_topic))
@@ -27,7 +27,7 @@ def on_open(ws):
 def publish(ws, msg):
     message = {
         "op": "publish",
-        "topic": "/transformer/LLM_interface/output",
+        "topic": "/transformer/phi-mini/outputStiffness",
         "msg": {"data": msg}
     }
     ws.send(json.dumps(message))
@@ -72,7 +72,7 @@ if __name__ == "__main__":
                                 on_error=on_error,
                                 on_message=on_message,
                                 on_close=on_close)
-
+    
     try:
         ws.run_forever()
     except Exception as e:
