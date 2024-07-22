@@ -132,4 +132,12 @@
   <node name="gazeboooo" pkg="gazebo_ros" type="spawn_model" output="screen"
         args="-file $(arg stone) -sdf -model stone -x $(arg x3) -y $(arg y3) -z $(arg z3) -Y $(arg Y3)" />
 
+
+  <!-- Node to publish object descriptions -->
+  <node name="object_description_publisher" pkg="llm_gazebo" type="object_description_publisher.py" output="screen">
+    <param name="description_file" value="$(find llm_gazebo)/config/object_descriptions.yaml"/>
+  </node>
+
+
+  
 </launch>
