@@ -110,7 +110,7 @@
   <arg name="Y1" default="0"/>
 
   <node name="gazeboo" pkg="gazebo_ros" type="spawn_model" output="screen"
-        args="-file $(arg pick_tray) -sdf -model my_box -x $(arg x1) -y $(arg y1) -z $(arg z1) -Y $(arg Y1)" />
+        args="-file $(arg pick_tray) -sdf -model pick_tray -x $(arg x1) -y $(arg y1) -z $(arg z1) -Y $(arg Y1)" />
 
   <arg name="place_tray" default="$(find franka_gazebo)/models/place_tray/model.sdf"/>
   <arg name="x2" default="0.5"/>
@@ -132,11 +132,6 @@
   <node name="gazeboooo" pkg="gazebo_ros" type="spawn_model" output="screen"
         args="-file $(arg stone) -sdf -model stone -x $(arg x3) -y $(arg y3) -z $(arg z3) -Y $(arg Y3)" />
 
-
-  <!-- Node to publish object descriptions -->
-  <node name="object_description_publisher" pkg="llm_gazebo" type="object_description_publisher.py" output="screen">
-    <param name="description_file" value="$(find llm_gazebo)/config/object_descriptions.yaml"/>
-  </node>
 
 
   

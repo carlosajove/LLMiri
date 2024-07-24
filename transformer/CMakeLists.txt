@@ -8,19 +8,27 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   pluginlib
-
+  geometry_msgs
 )
 
+add_message_files(
+    FILES
+    CallLLMlist.msg 
+    CallLLMsingle.msg
+)
 
 
 add_service_files(
   FILES
   CallLLM.srv
+  CallLLM_long.srv
+  GetObjectPoseFromDescription.srv
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 catkin_package(
@@ -29,6 +37,7 @@ catkin_package(
   CATKIN_DEPENDS 
     rospy 
     std_msgs 
+    geometry_msgs
     message_runtime
 )
 
@@ -37,6 +46,6 @@ catkin_package(
 
 
 catkin_install_python(PROGRAMS 
-                      src/interfaceLLM_node.py
+                      src/rosmelodic/llm_node.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

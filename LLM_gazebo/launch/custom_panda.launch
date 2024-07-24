@@ -57,5 +57,17 @@
     <arg name="interactive_marker" value="$(arg interactive_marker)" />
 
   </include>
+  
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+
+  <!-- Node to publish object descriptions -->
+  <node name="object_description_publisher" pkg="llm_gazebo" type="object_description_publisher.py" output="screen">
+    <param name="description_file" value="$(find llm_gazebo)/config/object_descriptions.yaml"/>
+  </node>
+
+  <node pkg="llm_gazebo" type="activateLLMservices.sh" name="python3_node" output="screen" />
+
+  <node name="llm_services" pkg="transformer" type="llm_node.py" output="screen"/>
 
 </launch>

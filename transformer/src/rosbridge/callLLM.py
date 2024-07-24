@@ -58,12 +58,16 @@ class PhiMini():
         return output[0]['generated_text']
     
     def call(self, input, save_context = False):
+        print("[INFO] PhiMini call")
+        print("[input]", input['unit'])
         messages = [
             {"role": "system", "content": "You are a helpful robotics controls engineer. \
                                         You have a robot arm which is the Franka Emika Panda robot arm, a single robot arm with 7 degrees of freedom. \
                                         The robot has a parallel-jaw gripper equipped with two small finger pads. The robot comes with a cartesian-impedance controller that takes in a cartesian position and orientation. \
-                                        The behaviour of the controller can be tuned via parameters."},
-            {"role": "user", "content": input}]
+                                        The behaviour of the controller can be tuned via parameters. Your role is to answer all of the questions that the user does."},
+             *input['unit']]
+        
+        print('\n \n \n', messages, '\n \n \n')
         
         
         

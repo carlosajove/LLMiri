@@ -2,7 +2,7 @@ import websocket
 import json
 
 
-from callLLM import PhiMini
+from transformer.src.rosbridge.callLLM import PhiMini
 
 
 def on_open(ws):
