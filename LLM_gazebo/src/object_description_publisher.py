@@ -12,7 +12,7 @@ def load_descriptions(file_path):
 def publisher():
     print("dhfhefha kjASFA")
     rospy.init_node('object_description_publisher', anonymous=True)
-    pub = rospy.Publisher('llm_context/object_description', ObjectDescriptionList, queue_size=10)
+    pub = rospy.Publisher('llm_context/object_description', ObjectDescriptionList, queue_size=1)
     rate = rospy.Rate(0.5)  # 1 Hz
 
     description_file = rospy.get_param('~description_file')

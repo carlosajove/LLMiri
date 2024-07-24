@@ -5,18 +5,19 @@ import threading
 
 
 class rosbridgeLLMinterface():
-    def __init__(self, function: Callable, service_name: str, topic_name: str):
+    def __init__(self, function: Callable, type: str, service_name: str, topic_name: str):
         """Class that creates custom service/topic (of type CallLLM) pair for bridging LLM with ros
 
         Args:
             function (Callable): point to LLM call function #TODO: point to LLM class
+            type (str): service type: example transformer/CallLLM
             service_name (str): service name must be $model/$service, for example "phi_mini/callStiffness"
             topic_name (string): topic name bust be $model/$topic, for example "phi_mini/outputStiffness"
         """
         self._function = function
         self._service_name = service_name
         self._topic_name = topic_name
-        
+        self._type = type
         
         websocket.enableTrace(True)
         self._ws = websocket.WebSocketApp("ws://localhost:9090/",
@@ -44,7 +45,7 @@ class rosbridgeLLMinterface():
 
             advertise_service = {
                 "op": "advertise_service",
-                "type": "transformer/CallLLM",
+                "type": self._type,
                 "service": "transformer/"+self._service_name
             }
             ws.send(json.dumps(advertise_service))
@@ -69,6 +70,7 @@ class rosbridgeLLMinterface():
 
     def on_message(self, ws, message):
         #with self.lock:
+            print("[INFO] ON_MESSAGE rosbridge")
             data = json.loads(message)
             if data['op'] == 'call_service':
                 service_name = data['service']
