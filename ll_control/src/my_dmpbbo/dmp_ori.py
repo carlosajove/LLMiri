@@ -27,10 +27,9 @@ class OriDmp():
 
         if (self._ini_quat.norm() != 1):
             warnings.warn("Initial quaternion not normalized. Normalizing automatically.", RuntimeWarning)            
-            self._ini_quat /= self.ini_quat.norm() 
+            self._ini_quat /= self._ini_quat.norm() 
             
         if (self._goal_quat.norm() != 1):
-            print(self._goal_quat.norm())
             warnings.warn("Goal quaternion not normalized. Normalizing automatically.", RuntimeWarning)            
             self._goal_quat /= self._goal_quat.norm()      
         
@@ -39,8 +38,6 @@ class OriDmp():
         self._q = deepcopy(self._ini_quat)
         self._ref_ori = deepcopy(self._ini_quat)
         
-        print(self._ini_quat.norm())
-
         
         self._time_history = [self._ini_time]
         self._quat_history = [self._ini_quat]
@@ -52,7 +49,11 @@ class OriDmp():
             if hasattr(self, key):
                 setattr(self, key, value)
                 
-                
+    def set_goal(self, goal_quat):
+        self._goal_quat = np.quaternion(*goal_quat)
+    
+    def get_tau(self):
+        return copy(1/self._itau)
         
     def integrateOri(self, q, eta, dt):
         #assert isinstance(q, np.quaternion)
@@ -111,7 +112,6 @@ class OriDmp():
 
 if __name__ == "__main__":
     ori_dmp = OriDmp(np.array([1, 0,0,0]), 0.0, np.array([0.9, 0.43588989435, 0, 0]),3.0)
-    print('hi')
     for i in range(5001):
         q = ori_dmp.integrateOriInternal(1.0/1000.0)
     ori_dmp.plot_traj()

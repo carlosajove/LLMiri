@@ -27,7 +27,6 @@ def publisher():
             obj_list.append(a)
         
         res = ObjectDescriptionList(objects=obj_list)
-        rospy.loginfo("Publishing ObjectDescriptionList with %d objects", len(obj_list))
         pub.publish(res)    
         rate.sleep()
         
