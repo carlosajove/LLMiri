@@ -23,6 +23,7 @@ add_service_files(
   CallLLM.srv
   CallLLM_long.srv
   GetObjectPoseFromDescription.srv
+  GetGripperForceFromDescription.srv
 )
 
 generate_messages(
