@@ -70,4 +70,7 @@
 
   <node name="llm_services" pkg="transformer" type="llm_node.py" output="screen"/>
 
+  <node name="end_eff_trajectory" pkg="ll_control" type="EndEffTrajectoryManager.py" output="screen" />
+
+  <node name="hl_llm_to_control" pkg="hl_control" type="LLM_to_controller_2.py" output="screen" />
 </launch>

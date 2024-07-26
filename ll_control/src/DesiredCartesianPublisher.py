@@ -22,7 +22,7 @@ class CartesianPublisherNode():
         self._set_cartesian_desired_srv = rospy.Service('/ll_ctrl/cartesian_publisher/set_cartesian_desired_pose', SetPose, self.handle_set_pos_command)
         self._start_publishing_srv = rospy.Service('/ll_ctrl/cartesian_publisher/start_publishing', Trigger, self.handle_start_publishing)
         self._stop_publishing_srv = rospy.Service('/ll_ctrl/cartesian_publisher/stop_publishing', Trigger, self.handle_stop_publishing)
-        
+                
         self._pub = rospy.Publisher('/cartesian_impedance_example_controller/equilibrium_pose', PoseStamped, queue_size=10)
         self._rate = rospy.Rate(1000)
         
@@ -80,9 +80,6 @@ class CartesianPublisherNode():
         return response
 
 
-
-
- 
     def publish_pose(self):
 
         while not rospy.is_shutdown() and self._is_publishing:

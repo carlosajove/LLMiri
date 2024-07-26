@@ -118,8 +118,6 @@ class LLM_node():
 
 if __name__ == "__main__":
     try:
-        print("jfalsdkA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!fj")
         a = LLM_node()
     except Exception as e:
-            print("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
             rospy.logerr('LLM node could not be initialized: {}'.format(e))

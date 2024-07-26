@@ -19,7 +19,6 @@ class KulDMP():
         """
         
         self._tau = deepcopy(tau)
-        print(tau)
         self._goal = deepcopy(goal)
         self._init_state = np.array([0, init_pos, init_pos, 1, 0])
 
@@ -122,7 +121,6 @@ class KulDMP():
         if method == 'kuta':
             tr = True
             x = self._state_hist[method][-1]
-            print('kuta_x', x)
             x_updated = self._integrate_step_runge_kutta(x, dt)
         
         if(not tr):
@@ -225,7 +223,12 @@ class KulDMP():
         
     """
     """ 
-        
+    def set_goal(self, goal):
+        self._goal = deepcopy(goal)
+    
+    def get_tau(self):
+        return copy(self._tau)
+    
     def plot_state_traj(self, method, show = False):
         name_list = ['z', 'y', 'g', 'v', 's' ]
         if method != 'euler' and method != 'kuta':
@@ -257,10 +260,18 @@ class MultiKulDmp():
         
         self._dim = len(init_pos)
         self._dmp_list = [KulDMP(init_pos[i], init_time, goal[i], tau) for i in range(self._dim)]
-    
-    
-    
+        self._tau = deepcopy(tau)
+        
     def integrate_step(self, dt, method):
+        """_summary_
+
+        Args:
+            dt (float): time step integration
+            method (str): supported methods: 'kuta', 'euler'
+
+        Returns:
+            _type_: _description_
+        """
         res = []
         for dmp in self._dmp_list:
             res.append(dmp.integrate_step(dt, method)[1])
@@ -268,3 +279,11 @@ class MultiKulDmp():
     
     def get_dmps(self):
         return self._dmp_list
+    
+    def set_goal(self, goals):
+        assert len(goals) == len(self._dmp_list)
+        for dmp,goal in zip(self._dmp_list, goals):
+            dmp.set_goal(goal)
+    
+    def get_tau(self):
+        return copy(self._tau)

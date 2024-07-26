@@ -31,6 +31,9 @@ add_service_files(
   SetPose.srv
   GetPose.srv
   GetObjectPose.srv
+  SetDmp.srv
+  SetInt.srv 
+  SetFloat.srv
 )
 
 generate_messages(
@@ -106,10 +109,11 @@ install(FILES ll_control_plugin.xml
 
 
 catkin_install_python(PROGRAMS 
-                      src/DesiredCartesianNodePub.py
+                      src/DesiredCartesianPublisher.py
                       src/testing/dmp_test.py 
                       src/my_dmpbbo/my_dmpbbo.py 
                       src/utils/utils.py
+                      src/EndEffTrajectoryManager.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 

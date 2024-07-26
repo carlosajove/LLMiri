@@ -12,6 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 
+add_service_files(
+  FILES
+  StringIn.srv
+)
+
+
 generate_messages(
   DEPENDENCIES
   std_msgs
@@ -33,5 +39,5 @@ catkin_package(
 
 catkin_install_python(PROGRAMS 
                       src/LLM_to_controller.py
-                      src/launch_nodes.py
+                      src/LLM_to_controller_2.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
