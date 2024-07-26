@@ -1,13 +1,38 @@
 #!/usr/bin/env python
 import rospy
 import threading
-import re
+import time 
 
-from transformer.srv import CallLLM, CallLLM_long, GetObjectPoseFromDescription, GetObjectPoseFromDescriptionResponse
+from transformer.srv import (CallLLM, CallLLM_long, 
+                             GetObjectPoseFromDescription, GetObjectPoseFromDescriptionResponse, 
+                             GetGripperForceFromDescription, GetGripperForceFromDescriptionResponse)
 from std_msgs.msg import String
 from llm_gazebo.msg import NameDescriptionPair, ObjectDescriptionList
 from ll_control.srv import GetObjectPose
 from transformer.msg import CallLLMsingle, CallLLMlist
+
+
+
+
+import re    
+     
+def pattern_match(pattern, data):     
+    match = re.search(pattern, data)
+    
+    if match:
+        res = match.group(1)
+        rospy.loginfo("Extracted : {}".format(res))
+        succes = True 
+    else:
+        rospy.loginfo(pattern + " not found in the response.")
+        res = None
+        succes
+    
+    return res, succes
+              
+
+
+
 
 class LLM_node():
     def __init__(self):
@@ -19,12 +44,31 @@ class LLM_node():
         self._LLM_output_subscriber = rospy.Subscriber('/transformer/phi_mini/output', String, self.LLM_callback)
         self._object_description_subscriber = rospy.Subscriber('llm_context/object_description', ObjectDescriptionList, self.object_description_callback)
         # Services
-        self.service = rospy.Service('/transformer/get_object_pose_from_description', GetObjectPoseFromDescription, self.getPoseFromObjectDescription_handle)
-        
-        #State Triggers
+        self._obj_pose_srv = rospy.Service('/transformer/get_object_pose_from_description', GetObjectPoseFromDescription, self.getPoseFromObjectDescription_handle)
         self._get_pose_from_object_description_send_trigger = False     #True when LLM is called
-        self._received_trigger = False #True when subscriber reads a message
+        self._get_pose_from_object_description_received_trigger = False #True when subscriber reads a message
+        
+        self._gripper_force_srv = rospy.Service('/transformer/get_gripper_force_from_description', GetGripperForceFromDescription, self.getGripperForceFromDescription_handle)
+        self._gripper_force_send_trigger = False
+        self._gripper_force_received_trigger = False
+        
+        
+        
+        
+        
+        
         rospy.spin()
+
+
+    def call_external_service(self, input):
+        # Call the external service
+        rospy.wait_for_service('/transformer/phi_mini/call')
+        try:
+            callLLM = rospy.ServiceProxy('/transformer/phi_mini/call', CallLLM_long)  
+            callLLM(input)  # Make the service call without waiting for response
+            rospy.loginfo("LLM call with input '{}' completed.".format(input))
+        except rospy.ServiceException as e:
+            rospy.logerr("Service call failed: {}".format(e))
 
         
     def object_description_callback(self, msg):
@@ -33,39 +77,32 @@ class LLM_node():
             self._res += "name: {}, description: {} |".format(object.name, object.description)
     
     def LLM_callback(self, msg):
+        #TODO: only one send trigger can be true at the same time
+        #TODO: optionally, in rosbridge could publish on different topics. This can be solved by using python 3 with ros noetic, and directly using services without topics
+        #TODO: error handling
         if (self._get_pose_from_object_description_send_trigger): 
             #TODO: solve potential bug if res/res2 not found   
 
             pattern = r"- OBJECT NAME:\s*(.*)"
-            match = re.search(pattern, msg.data)
-            
-            if match:
-                res = match.group(1)
-                rospy.loginfo("Extracted OBJECT NAME: {}".format(res))
-                self._desired_object_name = res 
-                self._received_trigger = True 
-            else:
-                rospy.loginfo("OBJECT NAME not found in the response.")
-                res = None
-              
+            self._desired_object_name, a = pattern_match(pattern, msg.data)
 
             pattern2 = r"- Explanation:\s*(.*)"
-            match2 = re.search(pattern2, msg.data)
-            if match:
-                res2 = match2.group(1)
-                rospy.loginfo("Extracted OBJECT NAME: {}".format(res2))
-            else:
-                rospy.loginfo("OBJECT NAME not found in the response.")
-                res2 = None
+            self._desired_object_explanation, self._get_pose_from_object_description_received_trigger = pattern_match(pattern2, msg.data)
             
-            self._desired_object_explanation = res2
+        elif (self._gripper_force_send_trigger):
+            pattern = r"- GRIPPER FORCE:\s*(.*)"
+            pattern1 = r"- GRIPPER WIDTH:\s*(.*)"
+            pattern2 = r"- Explanation:\s*(.*)"
+            
+            print('hey1')
+            self._gripper_force, a = pattern_match(pattern, msg.data)
+            print('hey2', self._gripper_force)
+            self._gripper_width,a = pattern_match(pattern1, msg.data)
+            print('hey3', self._gripper_width)
+            self._gripper_explanation, self._gripper_force_received_trigger = pattern_match(pattern2, msg.data)
+            print('hey4', self._gripper_explanation)
 
-        
-        
-    def get2(self, req):
-        pass
-        
-        
+            
     def getPoseFromObjectDescription_handle(self, req):
         # Start a separate thread to call the external service
         INPUT = [CallLLMsingle(role='system', content= "Franka needs to pick up an object. Using the description of the different objects that are on the world, provided below. \
@@ -83,7 +120,7 @@ class LLM_node():
         thread = threading.Thread(target=self.call_external_service, args=(input,))
         thread.start()
 
-        while(not self._received_trigger):
+        while(not self._get_pose_from_object_description_received_trigger):
             pass
         #received_trigger = TRUE
         
@@ -100,19 +137,42 @@ class LLM_node():
         response.success = get_res.success
         response.explanation = self._desired_object_explanation
 
-        self._received_trigger = False
+        self._get_pose_from_object_description_received_trigger = False
         self._get_pose_from_object_description_send_trigger = False       
         return response
 
-    def call_external_service(self, input):
-        # Call the external service
-        rospy.wait_for_service('/transformer/phi_mini/call')
-        try:
-            callLLM = rospy.ServiceProxy('/transformer/phi_mini/call', CallLLM_long)  
-            callLLM(input)  # Make the service call without waiting for response
-            rospy.loginfo("LLM call with input '{}' completed.".format(input))
-        except rospy.ServiceException as e:
-            rospy.logerr("Service call failed: {}".format(e))
+
+    def getGripperForceFromDescription_handle(self, req):
+        INPUT = [CallLLMsingle(role='system', content= "Franka needs to pick up an object. Using the description of the different objects that are on the world, provided below, you are going to tell me what are the parameters i should use. \
+                                        You must tell what is the correct gripper force that must be applied to pick up the desired object.  \
+                                        The answer must be in the following format: \
+                                                - GRIPPER FORCE: value (numeric in Newtons) \
+                                                - GRIPPER WIDTH: value (numeric in meters) \
+                                                - Explanation: here you will write why you choose those values and give an estimation of your confidence in the choice in percentage"),
+        CallLLMsingle(role = 'system', content = "Bellow you will find the name and description of all of the objects in the world: " + self._res),
+        CallLLMsingle(role = 'user', content = 'The stone is around 3 cm wide and 50 g heavy'),
+        CallLLMsingle(role = 'assistant', content = ' - GRIPPER FORCE: 50 \n - GRIPPER WIDTH: 0.03 \n - Explanation: Since gravity is around 10 ms^-2, gripper force should be of 50 N for an object of 50 grams. The stone has a width of 3cm therefore the gripper width must be of 0.03 meters. My confidence is high 80% since i have good information.'),
+        CallLLMsingle(role = 'user', content = req.description)]
+
+        input = CallLLMlist()
+        input.unit = INPUT
+        
+        self._gripper_force_send_trigger = True
+        thread = threading.Thread(target=self.call_external_service, args=(input,))
+        thread.start()
+        
+        while(not self._gripper_force_received_trigger):
+            pass
+
+        response = GetGripperForceFromDescriptionResponse()
+        print('AAAAA \n aaaaaa AAA \n  g force', self._gripper_force)
+        print('g width', self._gripper_width)
+        response.force = float(self._gripper_force)
+        response.width = float(self._gripper_width)
+        response.explanation = self._gripper_explanation
+        response.success = True #TODO: change, error handling
+        
+        return response
 
 
 
