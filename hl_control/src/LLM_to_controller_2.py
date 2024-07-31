@@ -3,7 +3,7 @@ import rospy
 
 from hl_control.srv import StringIn
 from transformer.srv import GetObjectPoseFromDescription, GetObjectPoseFromDescriptionRequest
-from ll_control.srv import SetDmp, SetDmpRequest
+from control.srv import SetDmp, SetDmpRequest
 
 
 class InterfaceLLMsrvToLLsrv():
@@ -22,12 +22,12 @@ class InterfaceLLMsrvToLLsrv():
         #TODO: Think what to do with tau
         
         rospy.wait_for_service('/transformer/get_object_pose_from_description')
-        rospy.wait_for_service('/ll_control/start_pos_trajectory')
-        rospy.wait_for_service('/ll_control/start_ori_trajectory')
+        rospy.wait_for_service('/control/start_pos_trajectory')
+        rospy.wait_for_service('/control/start_ori_trajectory')
         
         get_object_pose_from_description_srv = rospy.ServiceProxy('transformer/get_object_pose_from_description', GetObjectPoseFromDescription)
-        start_pos_traj_srv = rospy.ServiceProxy('/ll_control/start_pos_trajectory', SetDmp)
-        start_ori_traj_srv = rospy.ServiceProxy('/ll_control/start_ori_trajectory', SetDmp)
+        start_pos_traj_srv = rospy.ServiceProxy('/control/start_pos_trajectory', SetDmp)
+        start_ori_traj_srv = rospy.ServiceProxy('/control/start_ori_trajectory', SetDmp)
         
         get_obj_pose_from_des_response = get_object_pose_from_description_srv(req.user)
         start_pos_traj_req = SetDmpRequest()

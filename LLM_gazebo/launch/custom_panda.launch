@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <rosparam file="$(find ll_control)/config/controller_config.yaml" command="load"/>
+  <rosparam file="$(find control)/config/controller_config.yaml" command="load"/>
 
   <!-- Gazebo & GUI Configuration -->
   <arg name="gazebo"      default="true"  doc="Should the gazebo simulation be launched? Use false in case if you want to include this file and launch gazebo yourself" />
@@ -70,7 +70,9 @@
 
   <node name="llm_services" pkg="transformer" type="llm_node.py" output="screen"/>
 
-  <node name="end_eff_trajectory" pkg="ll_control" type="EndEffTrajectoryManager.py" output="screen" />
+  <node name="end_eff_trajectory" pkg="control" type="EndEffTrajectoryManager.py" output="screen" />
+
+  <node name="gripper_manager" pkg="control" type="GripperManager.py" output="screen" />
 
   <node name="hl_llm_to_control" pkg="hl_control" type="LLM_to_controller_2.py" output="screen" />
 </launch>

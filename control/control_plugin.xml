@@ -1,6 +1,6 @@
-<library path="lib/libll_control">
-  <class name="ll_control/ReadOnlyController"
-         type="ll_control::ReadOnlyController"
+<library path="lib/libcontrol">
+  <class name="control/ReadOnlyController"
+         type="control::ReadOnlyController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Getter services for model and state parameters.

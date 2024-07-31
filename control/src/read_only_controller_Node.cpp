@@ -17,13 +17,13 @@
 #include <ros/node_handle.h>
 #include <ros/time.h>
 #include <std_srvs/Trigger.h>
-#include <ll_control/SetPose.h>
+#include <control/SetPose.h>
 
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/franka_state_interface.h>
-#include <ll_control/read_only_controller_Node.h>
+#include <control/read_only_controller_Node.h>
 
-namespace ll_control {
+namespace control {
 
   bool ReadOnlyController::init(hardware_interface::RobotHW* robot_hw,
     ros::NodeHandle& root_node_handle,
@@ -95,7 +95,7 @@ namespace ll_control {
   }
 
 
-  bool ReadOnlyController::getEndEffectorPose(ll_control::GetPose::Request& req, ll_control::GetPose::Response& res) {
+  bool ReadOnlyController::getEndEffectorPose(control::GetPose::Request& req, control::GetPose::Response& res) {
     Eigen::Affine3d end_eff_isom(Eigen::Matrix4d::Map(model_handle_->getPose(franka::Frame::kEndEffector).data()));
     Eigen::Vector3d end_effector_pos(end_eff_isom.translation());
     Eigen::Quaterniond end_effector_quat(end_eff_isom.rotation());
@@ -120,7 +120,7 @@ namespace ll_control {
     model_states_ = *msg;
   }
 
-  bool ReadOnlyController::getObjectState(ll_control::GetObjectPose::Request& req, ll_control::GetObjectPose::Response& res) {
+  bool ReadOnlyController::getObjectState(control::GetObjectPose::Request& req, control::GetObjectPose::Response& res) {
     // Search for the object name in the stored model states
     auto it = std::find(model_states_.name.begin(), model_states_.name.end(), req.object_name);
     if (it != model_states_.name.end()) {
@@ -137,4 +137,4 @@ namespace ll_control {
 
 
 } // namespace franka_example_controllers
-PLUGINLIB_EXPORT_CLASS(ll_control::ReadOnlyController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(control::ReadOnlyController, controller_interface::ControllerBase)

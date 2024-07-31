@@ -8,7 +8,7 @@ from transformer.srv import (CallLLM, CallLLM_long,
                              GetGripperForceFromDescription, GetGripperForceFromDescriptionResponse)
 from std_msgs.msg import String
 from llm_gazebo.msg import NameDescriptionPair, ObjectDescriptionList
-from ll_control.srv import GetObjectPose
+from control.srv import GetObjectPose
 from transformer.msg import CallLLMsingle, CallLLMlist
 
 
@@ -149,9 +149,10 @@ class LLM_node():
                                                 - GRIPPER FORCE: value (numeric in Newtons) \
                                                 - GRIPPER WIDTH: value (numeric in meters) \
                                                 - Explanation: here you will write why you choose those values and give an estimation of your confidence in the choice in percentage"),
+        CallLLMsingle(role = 'system', content = "an example of output is: - GRIPPER FORCE: 50 \n - GRIPPER WIDTH: 0.05 \n - Explanation: ..... This is only to give an idea of the format the values do not matter in this example."),
         CallLLMsingle(role = 'system', content = "Bellow you will find the name and description of all of the objects in the world: " + self._res),
-        CallLLMsingle(role = 'user', content = 'The stone is around 3 cm wide and 50 g heavy'),
-        CallLLMsingle(role = 'assistant', content = ' - GRIPPER FORCE: 50 \n - GRIPPER WIDTH: 0.03 \n - Explanation: Since gravity is around 10 ms^-2, gripper force should be of 50 N for an object of 50 grams. The stone has a width of 3cm therefore the gripper width must be of 0.03 meters. My confidence is high 80% since i have good information.'),
+        #CallLLMsingle(role = 'user', content = 'The stone is around 3 cm wide and 50 g heavy'),
+        #CallLLMsingle(role = 'assistant', content = ' - GRIPPER FORCE: 50 \n - GRIPPER WIDTH: 0.03 \n - Explanation: Since gravity is around 10 ms^-2, gripper force should be of 50 N for an object of 50 grams. The stone has a width of 3cm therefore the gripper width must be of 0.03 meters. My confidence is high 80% since i have good information.'),
         CallLLMsingle(role = 'user', content = req.description)]
 
         input = CallLLMlist()

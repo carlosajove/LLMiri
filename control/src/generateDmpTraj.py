@@ -6,7 +6,7 @@ from my_dmpbbo.my_dmpbbo import KulDMP
 import utils.utils as utils
 
 from std_srvs.srv import Trigger
-from ll_control.srv import *
+from control.srv import *
 from geometry_msgs.msg import Pose
 
 

@@ -7,7 +7,7 @@ import rospy
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Header
 from geometry_msgs.msg import Pose, Point, Quaternion
-from ll_control.srv import SetPose, SetPoseResponse
+from control.srv import SetPose, SetPoseResponse
 from std_srvs.srv import Trigger, TriggerResponse
 import threading
 
