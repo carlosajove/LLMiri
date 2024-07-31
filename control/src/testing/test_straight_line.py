@@ -11,13 +11,13 @@ from copy import copy
 import utils.utils as utils
 
 from std_srvs.srv import Trigger
-from ll_control.srv import *
+from control.srv import *
 
 
 
 
 def run_DesiredCartesianNode():
-    return_code = subprocess.call(['rosrun', 'll_control', 'DesiredCartesianNodePub.py'])
+    return_code = subprocess.call(['rosrun', 'control', 'DesiredCartesianNodePub.py'])
     if return_code != 0:
         print("An error occurred while running the rosrun command")
 

@@ -10,7 +10,7 @@ from dynamic_reconfigure.msg import DoubleParameter, GroupState
 class alsdfjlj():
     def __init__(self):
 
-        rospy.init_node('interface_LLM_ll_controller')
+        rospy.init_node('interface_LLM_controller')
         self._LLM_subscriber = rospy.Subscriber('/transformer/LLM_interface/output', String, self.LLMoutputCalback)
         rospy.wait_for_service('/cartesian_impedance_example_controller/dynamic_reconfigure_compliance_param_node/set_parameters') 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ll_control</name>
+  <name>control</name>
   <version>0.10.1</version>
   <description>
   Testing TODO
@@ -34,6 +34,6 @@
   <exec_depend>message_runtime</exec_depend>
 
   <export>
-    <controller_interface plugin="${prefix}/ll_control_plugin.xml"/>
+    <controller_interface plugin="${prefix}/control_plugin.xml"/>
   </export>
 </package>

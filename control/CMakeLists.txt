@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1.3)
-project(ll_control)
+project(control)
 
 
 
@@ -34,6 +34,8 @@ add_service_files(
   SetDmp.srv
   SetInt.srv 
   SetFloat.srv
+  GraspObject.srv 
+  OpenGripper.srv
 )
 
 generate_messages(
@@ -45,7 +47,7 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ll_control
+  LIBRARIES control
   CATKIN_DEPENDS 
     roscpp
     rospy 
@@ -61,32 +63,32 @@ catkin_package(
 )
 
 
-add_library(ll_control
+add_library(control
   src/read_only_controller_Node.cpp
 )
 
 
-add_dependencies(ll_control
+add_dependencies(control
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
   ${PROJECT_NAME}_generate_messages_cpp
 )
 
-target_link_libraries(ll_control PUBLIC
+target_link_libraries(control PUBLIC
   ${Franka_LIBRARIES}
   ${catkin_LIBRARIES}
 )
 
-target_include_directories(ll_control SYSTEM PUBLIC
+target_include_directories(control SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
-target_include_directories(ll_control PUBLIC
+target_include_directories(control PUBLIC
   include
 )
 
 ## Installation
-install(TARGETS ll_control
+install(TARGETS control
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -100,7 +102,7 @@ install(DIRECTORY launch
 install(DIRECTORY config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-install(FILES ll_control_plugin.xml
+install(FILES control_plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
@@ -114,6 +116,7 @@ catkin_install_python(PROGRAMS
                       src/my_dmpbbo/my_dmpbbo.py 
                       src/utils/utils.py
                       src/EndEffTrajectoryManager.py
+                      src/GripperManager.py
                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
@@ -139,10 +142,10 @@ if(CLANG_TOOLS)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
   )
-  add_format_target(ll_control FILES ${SOURCES} ${HEADERS})
-  add_tidy_target(ll_control
+  add_format_target(control FILES ${SOURCES} ${HEADERS})
+  add_tidy_target(control
     FILES ${SOURCES}
-    DEPENDS ll_control
+    DEPENDS control
   )
 endif()
 

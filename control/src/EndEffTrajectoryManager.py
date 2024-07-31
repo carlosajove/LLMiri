@@ -3,7 +3,7 @@ import rospy
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ll_control.srv import SetDmp, GetPose, SetInt
+from control.srv import SetDmp, GetPose, SetInt
 from geometry_msgs.msg import PoseStamped
 
 from my_dmpbbo.my_dmpbbo import MultiKulDmp
@@ -14,17 +14,17 @@ class EndEffectorTrajectoryNode():
         rospy.init_node('ef_traj_node')
         
         
-        self._start_pos_traj_srv = rospy.Service('ll_control/start_pos_trajectory', SetDmp, self.start_pos_traj_handle)
+        self._start_pos_traj_srv = rospy.Service('control/start_pos_trajectory', SetDmp, self.start_pos_traj_handle)
         self._start_pos_traj_trigger = False
-        self._change_pos_goal_srv = rospy.Service('ll_control/change_pos_goal', SetDmp, self.change_pos_goal_handle)
+        self._change_pos_goal_srv = rospy.Service('control/change_pos_goal', SetDmp, self.change_pos_goal_handle)
         
-        self._start_ori_traj_srv = rospy.Service('ll_control/start_ori_trajectory', SetDmp, self.start_ori_traj_handle)
+        self._start_ori_traj_srv = rospy.Service('control/start_ori_trajectory', SetDmp, self.start_ori_traj_handle)
         self._start_ori_traj_trigger = False
-        self._change_ori_goal_srv = rospy.Service('ll_control/change_ori_goal', SetDmp, self.change_ori_goal_handle)
+        self._change_ori_goal_srv = rospy.Service('control/change_ori_goal', SetDmp, self.change_ori_goal_handle)
         
         
         self._update_freq = 1000 #Franka c++ interface can work at 1 kHz
-        self._set_update_freq_srv = rospy.Service('ll_control/trajectory_update_frequency', SetInt, self.set_update_freq_handle)
+        self._set_update_freq_srv = rospy.Service('control/trajectory_update_frequency', SetInt, self.set_update_freq_handle)
         
         self._pos_traj = None
         self._ori_traj = None
