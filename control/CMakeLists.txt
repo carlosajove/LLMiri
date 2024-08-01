@@ -36,6 +36,7 @@ add_service_files(
   SetFloat.srv
   GraspObject.srv 
   OpenGripper.srv
+  WaitForGoal.srv
 )
 
 generate_messages(

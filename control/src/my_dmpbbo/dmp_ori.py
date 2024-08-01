@@ -51,6 +51,9 @@ class OriDmp():
                 
     def set_goal(self, goal_quat):
         self._goal_quat = np.quaternion(*goal_quat)
+        
+    def get_goal(self):
+        return copy(self._goal_quat)
     
     def get_tau(self):
         return copy(1/self._itau)

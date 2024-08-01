@@ -2,8 +2,10 @@
 import rospy
 import numpy as np
 import matplotlib.pyplot as plt
+import quaternion
 
-from control.srv import SetDmp, GetPose, SetInt
+
+from control.srv import SetDmp, GetPose, SetInt, WaitForGoal
 from geometry_msgs.msg import PoseStamped
 
 from my_dmpbbo.my_dmpbbo import MultiKulDmp
@@ -22,6 +24,7 @@ class EndEffectorTrajectoryNode():
         self._start_ori_traj_trigger = False
         self._change_ori_goal_srv = rospy.Service('control/change_ori_goal', SetDmp, self.change_ori_goal_handle)
         
+        self._wait_for_goal_srv = rospy.Service('control/wait_for_ef_trajectory_goal', WaitForGoal, self.wait_for_goal_handle)
         
         self._update_freq = 1000 #Franka c++ interface can work at 1 kHz
         self._set_update_freq_srv = rospy.Service('control/trajectory_update_frequency', SetInt, self.set_update_freq_handle)
@@ -120,17 +123,92 @@ class EndEffectorTrajectoryNode():
                     ef_pose.pose.position.y = pos_traj_point[1]
                     ef_pose.pose.position.z = pos_traj_point[2]
                 if self._ori_traj:
+                    #TODO:change to smart orientation
+                    pass
+                    """
                     ef_pose.pose.orientation.w = ori_traj_point.w
                     ef_pose.pose.orientation.x = ori_traj_point.x
                     ef_pose.pose.orientation.y = ori_traj_point.y
                     ef_pose.pose.orientation.z = ori_traj_point.z
-                
+                    """
 
                 self._trajectory_pub.publish(ef_pose)
             
             rate.sleep()
 
+    def wait_for_goal_handle(self, req):
+        rospy.wait_for_service('/read_only_controller/get_end_effector_pose')
+        ef_pose_getter = rospy.ServiceProxy('read_only_controller/get_end_effector_pose', GetPose)
+        
+        rate = rospy.Rate(5)
+        pos_bool = False
+        ori_bool = False
+        while not pos_bool and not ori_bool:
+            pos_bool = False
+            ori_bool = False
+            current_pose = ef_pose_getter()
+            current_position = np.array([current_pose.position_x, 
+                                         current_pose.position_y, 
+                                         current_pose.position_z])            
+            current_orientation = np.quaternion(current_pose.orientation_w,
+                                                current_pose.orientation_x, 
+                                                current_pose.orientation_y, 
+                                                current_pose.orientation_z)
+            if self._pos_traj:
+                pos_goal = self._pos_traj.get_goal()
+                pos_goal = np.array(pos_goal)
+                if np.linalg.norm(current_position - pos_goal) < req.eps_pos:
+                    pos_bool = True
+                    rospy.loginfo('Wait for goal srv: Pos goal reached')
+            else:
+                rospy.loginfo('Wait for goal srv: Pos traj not set')
+                pos_bool = True
+                
+            if self._ori_traj:
+                ori_goal = self._ori_traj.get_goal()
+                ori_goal = ori_goal.normalized()
+                current_orientation = current_orientation.normalized()
+                
+                ori_goal_inv = ori_goal.inverse()
+                q_rel = current_orientation * ori_goal_inv
+                error_angle = 2 * np.arccos(np.clip(q_rel.w, -1.0, 1.0))
+                if error_angle < req.eps_ori:
+                    ori_bool = True
+                    rospy.loginfo('Wait for goal srv: Ori goal reached')
+                
+            else:
+                rospy.loginfo('Wait for goal srv: Ori traj not set')
+                ori_bool = True
 
+                
+        return True
+
+        """
+        
+            current_position = np.array([current_pose.position.x, current_pose.position.y, current_pose.position.z])
+    current_orientation = [current_pose.orientation.x, current_pose.orientation.y, current_pose.orientation.z, current_pose.orientation.w]
+    
+    # Extract target position and orientation
+    target_position = np.array([target_pose.position.x, target_pose.position.y, target_pose.position.z])
+    target_orientation = [target_pose.orientation.x, target_pose.orientation.y, target_pose.orientation.z, target_pose.orientation.w]
+
+    # Calculate Euclidean distance for position
+    position_distance = np.linalg.norm(current_position - target_position)
+    
+    # Calculate quaternion distance for orientation
+    quat_diff = tf.transformations.quaternion_multiply(
+        tf.transformations.quaternion_inverse(current_orientation),
+        target_orientation
+    )
+    angle_diff = 2 * np.arccos(np.clip(quat_diff[3], -1.0, 1.0))
+
+    # Check if both position and orientation distances are within the thresholds
+    return position_distance < pos_threshold and angle_diff < orient_threshold
+
+        """
+
+
+        
 if __name__ == '__main__':
     try:
         EndEffectorTrajectoryNode()
