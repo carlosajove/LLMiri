@@ -226,6 +226,9 @@ class KulDMP():
     def set_goal(self, goal):
         self._goal = deepcopy(goal)
     
+    def get_goal(self):
+        return copy(self._goal)
+    
     def get_tau(self):
         return copy(self._tau)
     
@@ -284,6 +287,12 @@ class MultiKulDmp():
         assert len(goals) == len(self._dmp_list)
         for dmp,goal in zip(self._dmp_list, goals):
             dmp.set_goal(goal)
+    
+    def get_goal(self):
+        goals = []
+        for dmp in self._dmp_list:
+            goals.append(dmp.get_goal())
+        return goals
     
     def get_tau(self):
         return copy(self._tau)

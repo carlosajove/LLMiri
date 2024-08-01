@@ -3,7 +3,7 @@ import rospy
 
 from hl_control.srv import StringIn
 from transformer.srv import GetObjectPoseFromDescription, GetObjectPoseFromDescriptionRequest
-from control.srv import SetDmp, SetDmpRequest
+from control.srv import SetDmp, SetDmpRequest, GraspObject, OpenGripper, WaitForGoal
 
 
 class InterfaceLLMsrvToLLsrv():
@@ -12,15 +12,12 @@ class InterfaceLLMsrvToLLsrv():
     #bypassing the LLM node (transformer/rosmelodic)? 
     def __init__(self):
         rospy.init_node('hl_interface')
-        
-
-        
         self._mv_to_object_from_des_srv = rospy.Service('/hl_control/move_to_object_from_description', StringIn, self.move_to_object_from_description)
+        self._pick_object_from_des_srv = rospy.Service('/hl_control/pick_object_from_description', StringIn, self.pick_object_from_description_handle)
         rospy.spin()
         
     def move_to_object_from_description(self, req):
         #TODO: Think what to do with tau
-        
         rospy.wait_for_service('/transformer/get_object_pose_from_description')
         rospy.wait_for_service('/control/start_pos_trajectory')
         rospy.wait_for_service('/control/start_ori_trajectory')
@@ -41,6 +38,24 @@ class InterfaceLLMsrvToLLsrv():
         if not b1.success or not b2.success:
             return False
         return True
+    
+    def pick_object_from_description_handle(self, req):
+        rospy.wait_for_service('/gripper_manager/open_gripper')
+        open_grip_srv = rospy.ServiceProxy('/gripper_manager/open_gripper', OpenGripper)
+        print(open_grip_srv(width=0.08, speed=0.1))
+        
+        rospy.wait_for_service('/hl_control/move_to_object_from_description')
+        move_srv = rospy.ServiceProxy('/hl_control/move_to_object_from_description', StringIn)
+        print(move_srv(req))
+        
+        rospy.wait_for_service('control/wait_for_ef_trajectory_goal')
+        wait_srv = rospy.ServiceProxy('control/wait_for_ef_trajectory_goal', WaitForGoal)
+        wait_srv(eps_pos = 0.1, eps_ori = 1)
+        
+        rospy.wait_for_service('/gripper_manager/grasp_object_from_description')
+        grasp_srv = rospy.ServiceProxy('/gripper_manager/grasp_object_from_description', GraspObject)
+        print(grasp_srv(req.user))
+        
         
 if __name__ == "__main__":
     try:
