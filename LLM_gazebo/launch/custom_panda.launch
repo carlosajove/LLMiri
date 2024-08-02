@@ -74,5 +74,5 @@
 
   <node name="gripper_manager" pkg="control" type="GripperManager.py" output="screen" />
 
-  <node name="hl_llm_to_control" pkg="hl_control" type="LLM_to_controller_2.py" output="screen" />
+  <node name="hl_llm_to_control" pkg="hl_control" type="LLM_to_controller.py" output="screen" />
 </launch>

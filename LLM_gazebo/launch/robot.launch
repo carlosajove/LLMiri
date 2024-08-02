@@ -123,8 +123,8 @@
         args="-file $(arg place_tray) -sdf -model place_tray -x $(arg x2) -y $(arg y2) -z $(arg z2) -Y $(arg Y2)" />
   
   <arg name="stone" default="$(find franka_gazebo)/models/stone/model.sdf"/>
-  <arg name="x3" default="0.2"/>
-  <arg name="y3" default="0.4"/>
+  <arg name="x3" default="0.3"/>
+  <arg name="y3" default="0.2"/>
   <arg name="z3" default="0"/>
   <arg name="Y3" default="0"/>
   

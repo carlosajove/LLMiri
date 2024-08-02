@@ -8,4 +8,4 @@ objects:
   - name: "place_tray"
     description: "The place tray is a red rectangular prism. The tray is very heavy. Their sides are 10 cm times 20 cm and has a width of 3 cm."
   - name: "stone"
-    description: "The stone is a white rectangular prims obejct. The stone is not very big, therefore it isn't very heavy. It has a size of 5 cm x 3 cm x 3 cm. It is standing about it's base 3x3."
+    description: "The stone is a white rectangular prism object. The stone is not very big, therefore it isn't very heavy. It has a size of 5 cm x 3 cm x 3 cm. It is standing about it's base 3x3."
