@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import rospy
 import threading
-import time 
 
 from transformer.srv import (CallLLM, CallLLM_long, 
                              GetObjectPoseFromDescription, GetObjectPoseFromDescriptionResponse, 
-                             GetGripperForceFromDescription, GetGripperForceFromDescriptionResponse)
+                             GetGripperForceFromDescription, GetGripperForceFromDescriptionResponse,
+                             GetCartesianStiffnessFromDescription, GetCartesianStiffnessFromDescriptionResponse)
 from std_msgs.msg import String
 from llm_gazebo.msg import NameDescriptionPair, ObjectDescriptionList
 from control.srv import GetObjectPose
@@ -52,11 +52,9 @@ class LLM_node():
         self._gripper_force_send_trigger = False
         self._gripper_force_received_trigger = False
         
-        
-        
-        
-        
-        
+        self._set_cartesian_stiffness_srv = rospy.Service('transformer/set_cartessian_stiffness_from_description', GetCartesianStiffnessFromDescription, self.getCartesianStiffnessFromDescription_handle)
+        self._cartesian_stiffness_send_trigger = False
+        self._cartesian_stiffness_received_trigger = False
         rospy.spin()
 
 
@@ -94,13 +92,18 @@ class LLM_node():
             pattern1 = r"- GRIPPER WIDTH:\s*(.*)"
             pattern2 = r"- Explanation:\s*(.*)"
             
-            print('hey1')
             self._gripper_force, a = pattern_match(pattern, msg.data)
-            print('hey2', self._gripper_force)
             self._gripper_width,a = pattern_match(pattern1, msg.data)
-            print('hey3', self._gripper_width)
             self._gripper_explanation, self._gripper_force_received_trigger = pattern_match(pattern2, msg.data)
-            print('hey4', self._gripper_explanation)
+        
+        elif (self._cartesian_stiffness_send_trigger):
+            pattern = r"- translational_stiffness:\s*(\d+\.?\d*)"
+            pattern1 = r"- rotational_stiffness:\s*(\d+\.?\d*)"
+            pattern2 = r"- Explanation:\s*(.*)"
+            
+            self._translational_stiffness, a = pattern_match(pattern, msg.data)
+            self._rotational_stiffness, a = pattern_match(pattern1, msg.data)
+            self._stiffness_explanation, self._cartesian_stiffness_received_trigger = pattern_match(pattern2, msg.data)
 
             
     def getPoseFromObjectDescription_handle(self, req):
@@ -166,8 +169,6 @@ class LLM_node():
             pass
 
         response = GetGripperForceFromDescriptionResponse()
-        print('AAAAA \n aaaaaa AAA \n  g force', self._gripper_force)
-        print('g width', self._gripper_width)
         response.force = float(self._gripper_force)
         response.width = float(self._gripper_width)
         response.explanation = self._gripper_explanation
@@ -175,7 +176,47 @@ class LLM_node():
         
         return response
 
-
+    def getCartesianStiffnessFromDescription_handle(self, req):
+        INPUT = [CallLLMsingle(role='system', content="The robot comes with a cartesian-impedance controller that takes in a cartesian position and orientation. \
+                                        The behaviour of the controller can be tuned via parameters. \
+                                        The cartesian stiffness parameter defines how resistant the end-effector is to displacement when a force or external disturbance is applied to it. It is a 6-dimensional vector (kx, ky, kz, kroll, kpitch, kyaw). \
+                                        kx = ky = kz = translational_stiffness are the stiffness in the translational directions, kroll = kpitch = kyaw = rotational_stiffness are the orientation stiffness. \
+                                            \
+                                        Your job is to tell what parameters to use in the controller depending on the context.\
+                                        \
+                                        Your answer will consist of the following parts: \
+                                        Explanation: in this part you must explain in words the choices you make. \
+                                        Parameters: In this part you must write explicitly the paramter values that enable you to follow the desired behaviour. \
+                                        The answer must be in the following format:  \
+                                            - translational_stiffness: value \
+                                            - rotational_stiffness: value \
+                                            - Explanation: ... \
+                                        Where translational_stiffness, rotational_stiffness are values between 0.0 and 1.0, in float format."),
+                 CallLLMsingle(role = 'user', content = "I'm trying to move a rock."),
+                 CallLLMsingle(role = 'assistant', content = " - translational_stiffness: 0.8 \
+                                                               - rotational_stiffness: 0.5 \
+                                                               - Explanation: Rocks are heavy objects therefore you should use a high stiffness. "),
+                 CallLLMsingle(role = 'user', content = req.description)]
+        
+        input = CallLLMlist()
+        input.unit = INPUT
+        
+        self._cartesian_stiffness_send_trigger = True
+        thread = threading.Thread(target=self.call_external_service, args=(input,))
+        thread.start()
+        
+        while(not self._cartesian_stiffness_received_trigger):
+            pass
+        
+        response = GetCartesianStiffnessFromDescriptionResponse()
+        response.translational_stiffness = float(self._translational_stiffness)
+        response.rotational_stiffness = float(self._rotational_stiffness)
+        response.explanation = self._stiffness_explanation
+        response.success = True  
+        
+        return response
+        
+        
 
 if __name__ == "__main__":
     try:

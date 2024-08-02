@@ -1,0 +1,6 @@
+string description
+-----
+float64 translational_stiffness
+float64 rotational_stiffness
+string explanation
+bool success
