@@ -86,7 +86,7 @@ The `control` module handles the low-level control with Franka's robotic arm. It
 
 ### 2. HL Control
 
-The `hl_control` (High-Level Control) module is responsible for interpreting high-level commands, typically derived from natural language. This module bridges the gap between the LLM and the lower-level control mechanisms.
+The `hl_control` module is responsible for interpreting high-level commands, typically derived from natural language. This module bridges the gap between the LLM responses and the lower-level control mechanisms.
 
 [More about the HL Control module](hl_control/README.md)
 
@@ -98,6 +98,6 @@ The `hl_control` (High-Level Control) module is responsible for interpreting hig
 
 ### 4. Transformer
 
-The `transformer` module leverages Large Language Models (LLMs) to interpret natural language commands and translate them into instructions that the robotic arm can understand. 
+The `transformer` module leverages seves as an interface with Large Language Models (LLMs). 
 
 [More about the Transformer module](transformer/README.md)
