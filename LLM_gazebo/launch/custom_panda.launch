@@ -66,6 +66,7 @@
     <param name="description_file" value="$(find llm_gazebo)/config/object_descriptions.yaml"/>
   </node>
 
+  <!-- Activates python 3 environment to run services on the LLM-->
   <node pkg="llm_gazebo" type="activateLLMservices.sh" name="python3_node" output="screen" />
 
   <node name="llm_services" pkg="transformer" type="llm_node.py" output="screen"/>
