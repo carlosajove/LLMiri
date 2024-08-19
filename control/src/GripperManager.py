@@ -19,6 +19,9 @@ class GripperManager():
         
                 
     def grasp_object_handle(self, req):
+        """
+        Uses LLM to set the width and force of the gripper
+        """
         rospy.wait_for_service('/transformer/get_gripper_force_from_description')
         self._get_gripper_force_srv = rospy.ServiceProxy('/transformer/get_gripper_force_from_description', GetGripperForceFromDescription)
         

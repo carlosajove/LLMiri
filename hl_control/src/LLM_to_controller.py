@@ -21,6 +21,9 @@ class InterfaceLLMsrvToLLsrv():
         rospy.spin()
         
     def move_to_object_from_description(self, req):
+        """
+        From a description of the object, the LLM interprets which object should be picked. And the robotic arm moves the end-effector to the object position.
+        """
         #TODO: Think what to do with tau
         rospy.wait_for_service('/transformer/get_object_pose_from_description')
         rospy.wait_for_service('/control/start_pos_trajectory')
@@ -44,6 +47,9 @@ class InterfaceLLMsrvToLLsrv():
         return True
     
     def pick_object_from_description_handle(self, req):
+        """
+        From the object description proviced by the user, the LLM tells what force and width parameters should be used to pick an object.
+        """
         rospy.wait_for_service('/gripper_manager/open_gripper')
         open_grip_srv = rospy.ServiceProxy('/gripper_manager/open_gripper', OpenGripper)
         open_grip_srv(width=0.08, speed=0.1)
@@ -62,6 +68,9 @@ class InterfaceLLMsrvToLLsrv():
     
     
     def set_cartesian_stiffness_from_description_handle(self, req):
+        """
+        From the description provided by the user, the LLM sets the cartesiand stiffness used in the low-level cartesian impedance controller
+        """
         rospy.wait_for_service('transformer/set_cartessian_stiffness_from_description')
         get_stiffness = rospy.ServiceProxy('transformer/set_cartessian_stiffness_from_description', GetCartesianStiffnessFromDescription)
         stiffness_response = get_stiffness(req.user)
