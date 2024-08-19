@@ -1,0 +1,4 @@
+pyyaml
+numpy==1.16.6
+matplotlib==2.2.5
+quaternion
