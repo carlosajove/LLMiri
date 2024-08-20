@@ -1,4 +1,5 @@
 # pip install accelerate
+import os
 from huggingface_hub import login 
 login()
 
