@@ -1,6 +1,6 @@
 # LLMiri
 
-Framework for Using LLMs to Control Franka's Robotic Arm
+Framework for using LLMs to control a Franka Emika Panda arm from natural-language commands.
 
 ## Overview
 LLMiri is a framework designed to leverage Large Language Models (LLMs) for controlling Franka's robotic arm. This project integrates ROS-Melodic and franka_ros to enable interaction with the low-level controller of the robotic arm using natural language commands.
@@ -17,9 +17,8 @@ LLMiri is a framework designed to leverage Large Language Models (LLMs) for cont
 - ROS-Melodic installed
 - franka_ros package installed and configured ([installation guide](https://frankaemika.github.io/docs/installation_linux.html))
 - Gazebo installed and configured
-- Anaconda or Miniconda istalled [install Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
-- Python 2.7, Python 3.8+
-- requirements.txt and versions may not be the correct ones (I don't have access to the computer right now)
+- Anaconda or Miniconda installed ([install Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html))
+- Python 2.7 (ROS) and Python 3.8+ (LLM side)
 
 ### Setup
 
@@ -56,7 +55,7 @@ LLMiri is a framework designed to leverage Large Language Models (LLMs) for cont
     ```sh
     conda create -n py3 python=3.12
     conda activate py3
-    pip install torch transformers webocket-client
+    pip install torch transformers websocket-client
     conda deactivate 
     ```
 
@@ -98,6 +97,6 @@ The `hl_control` module is responsible for interpreting high-level commands, typ
 
 ### 4. Transformer
 
-The `transformer` module leverages seves as an interface with Large Language Models (LLMs). 
+The `transformer` module serves as the interface to the Large Language Models (Llama 3, Gemma 2, Phi-3, GPT-3.5). 
 
 [More about the Transformer module](transformer/README.md)
